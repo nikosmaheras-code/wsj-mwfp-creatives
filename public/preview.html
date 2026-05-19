@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Polymarket Ad Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #111;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0a0a0a;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-logo svg {
+      display: block;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      padding-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0d0d0d;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.8);
+    }
+
+    .tab-btn.active {
+      background: #2e5cff;
+      border-color: #2e5cff;
+      color: #fff;
+    }
+
+    /* Content area */
+    .content {
+      padding: 32px 24px;
+      min-height: calc(100vh - 120px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .ad-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ad-panel.active {
+      display: flex;
+    }
+
+    .ad-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* White card holding the ad at actual pixel dimensions */
+    .ad-frame {
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ad-frame iframe {
+      display: block;
+      border: none;
+    }
+
+    /* Coming soon placeholder */
+    .coming-soon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: rgba(255,255,255,0.3);
+      font-size: 14px;
+    }
+
+    .coming-soon .cs-size {
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">
+    <!-- Polymarket "P" mark simplified SVG -->
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="4" fill="#2e5cff"/>
+      <path d="M7 5.5h5.2c2.5 0 4.3 1.6 4.3 4s-1.8 4-4.3 4H9.5v5H7V5.5zm2.5 6h2.6c1.1 0 1.9-.7 1.9-2s-.8-2-1.9-2H9.5v4z" fill="white"/>
+    </svg>
+    <span style="font-weight:600;font-size:15px;">Polymarket</span>
+  </div>
+  <span class="header-title">Ad Preview</span>
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn" data-tab="0">728×90</button>
+  <button class="tab-btn" data-tab="1">970×250</button>
+  <button class="tab-btn" data-tab="2">300×600</button>
+  <button class="tab-btn" data-tab="3">300×250</button>
+  <button class="tab-btn" data-tab="4">600×500</button>
+  <button class="tab-btn" data-tab="5">1280×500</button>
+  <button class="tab-btn" data-tab="6">1960×500</button>
+  <button class="tab-btn" data-tab="7">3800×800</button>
+</div>
+
+<!-- Content panels -->
+<div class="content">
+
+  <!-- 728x90 -->
+  <div class="ad-panel" data-panel="0">
+    <div class="ad-label">728 × 90 — Leaderboard</div>
+    <div class="ad-frame">
+      <iframe
+        id="iframe-0"
+        src="ads/728x90.html"
+        width="728"
+        height="90"
+        scrolling="no"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- 970x250 -->
+  <div class="ad-panel" data-panel="1">
+    <div class="ad-label">970 × 250 — Billboard</div>
+    <div class="ad-frame">
+      <iframe
+        id="iframe-1"
+        src="ads/970x250.html"
+        width="970"
+        height="250"
+        scrolling="no"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- 300x600 -->
+  <div class="ad-panel" data-panel="2">
+    <div class="ad-label">300 × 600 — Half Page / Skyscraper</div>
+    <div class="ad-frame">
+      <iframe
+        id="iframe-2"
+        src="ads/300x600.html"
+        width="300"
+        height="600"
+        scrolling="no"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- Coming soon panels -->
+  <div class="ad-panel" data-panel="3">
+    <div class="ad-label">300 × 250 — Medium Rectangle</div>
+    <div class="ad-frame" style="background:#1a1a1a;">
+      <div class="coming-soon" style="width:300px;height:250px;">
+        <span>Coming soon</span>
+        <span class="cs-size">300 × 250</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-panel" data-panel="4">
+    <div class="ad-label">600 × 500</div>
+    <div class="ad-frame" style="background:#1a1a1a;">
+      <div class="coming-soon" style="width:600px;height:500px;">
+        <span>Coming soon</span>
+        <span class="cs-size">600 × 500</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-panel" data-panel="5">
+    <div class="ad-label">1280 × 500</div>
+    <div class="ad-frame" style="background:#1a1a1a;">
+      <div class="coming-soon" style="width:1280px;height:500px;">
+        <span>Coming soon</span>
+        <span class="cs-size">1280 × 500</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-panel" data-panel="6">
+    <div class="ad-label">1960 × 500</div>
+    <div class="ad-frame" style="background:#1a1a1a;">
+      <div class="coming-soon" style="width:1280px;height:500px;">
+        <span>Coming soon</span>
+        <span class="cs-size">1960 × 500</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-panel" data-panel="7">
+    <div class="ad-label">3800 × 800</div>
+    <div class="ad-frame" style="background:#1a1a1a;">
+      <div class="coming-soon" style="width:1280px;height:800px;">
+        <span>Coming soon</span>
+        <span class="cs-size">3800 × 800</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var tabs = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.ad-panel');
+  var refreshTimers = {};
+
+  // Known ad dimensions per tab index
+  var AD_SIZES = {
+    0: { w: 728,  h: 90  },
+    1: { w: 970,  h: 250 },
+    2: { w: 300,  h: 600 },
+    3: { w: 300,  h: 250 },
+    4: { w: 600,  h: 500 },
+    5: { w: 1280, h: 500 },
+    6: { w: 1960, h: 500 },
+    7: { w: 3800, h: 800 }
+  };
+
+  function scaleActiveFrame() {
+    var activePanel = document.querySelector('.ad-panel.active');
+    if (!activePanel) return;
+    var idx = parseInt(activePanel.getAttribute('data-panel'), 10);
+    var size = AD_SIZES[idx];
+    if (!size) return;
+    var content = document.querySelector('.content');
+    var available = content.clientWidth - 48; // 24px padding × 2
+    var scale = Math.min(1, available / size.w);
+    var frame = activePanel.querySelector('.ad-frame');
+    if (!frame) return;
+    var iframe = frame.querySelector('iframe');
+    if (scale < 1) {
+      // Shrink the wrapper to scaled dimensions so it doesn't overflow
+      frame.style.width  = Math.floor(size.w * scale) + 'px';
+      frame.style.height = Math.floor(size.h * scale) + 'px';
+      frame.style.transform = '';
+      frame.style.marginBottom = '';
+      // Scale the iframe from top-left so it fills the shrunken wrapper
+      if (iframe) {
+        iframe.style.transform = 'scale(' + scale + ')';
+        iframe.style.transformOrigin = 'top left';
+        iframe.style.width  = size.w + 'px';
+        iframe.style.height = size.h + 'px';
+      }
+    } else {
+      frame.style.width  = '';
+      frame.style.height = '';
+      frame.style.transform = '';
+      frame.style.marginBottom = '';
+      if (iframe) {
+        iframe.style.transform = '';
+        iframe.style.transformOrigin = '';
+        iframe.style.width  = '';
+        iframe.style.height = '';
+      }
+    }
+  }
+
+  function activateTab(index) {
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    panels.forEach(function(p) { p.classList.remove('active'); });
+
+    var btn = document.querySelector('[data-tab="' + index + '"]');
+    var panel = document.querySelector('[data-panel="' + index + '"]');
+    if (btn) btn.classList.add('active');
+    if (panel) panel.classList.add('active');
+
+    // Update URL hash
+    window.location.hash = 'tab-' + index;
+
+    // Scale to viewport if needed
+    requestAnimationFrame(scaleActiveFrame);
+  }
+
+  window.addEventListener('resize', scaleActiveFrame);
+
+  // Tab click handlers
+  tabs.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(btn.getAttribute('data-tab'), 10);
+      activateTab(idx);
+    });
+  });
+
+  // Auto-refresh iframes every hour
+  var iframes = document.querySelectorAll('iframe[id^="iframe-"]');
+  iframes.forEach(function(iframe) {
+    var originalSrc = iframe.src;
+    setInterval(function() {
+      iframe.src = originalSrc + '?r=' + Date.now();
+    }, 60 * 60 * 1000);
+  });
+
+  // Init from hash
+  var hash = window.location.hash;
+  var initialTab = 0;
+  if (hash && hash.startsWith('#tab-')) {
+    var parsed = parseInt(hash.replace('#tab-', ''), 10);
+    if (!isNaN(parsed) && parsed >= 0 && parsed < 8) {
+      initialTab = parsed;
+    }
+  }
+  activateTab(initialTab);
+</script>
+</body>
+</html>

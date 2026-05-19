@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "polymarket-ads",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "public", "-l", "3456", "--cors"],
+      "port": 3456
+    }
+  ]
+}

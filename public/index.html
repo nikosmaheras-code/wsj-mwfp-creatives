@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- GAM HTML5 ad declaration — update width to match placement (300|728|970) -->
+  <meta name="ad.size" content="width=728,height=21" />
+  <title>Polymarket Ticker</title>
+  <!-- GAM Enabler — required for click tracking in Studio/GAM HTML5 -->
+  <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      /* Anchor rem to our design scale — immune to browser default & WSJ's root font.
+         Change this one value to scale all text up/down uniformly. */
+      font-size: 9px;
+    }
+
+    html, body {
+      background: #000;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Outer wrapper ─────────────────────────────────────── */
+    .ticker-root {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Polymarket logo pill ─────────────────────────────────── */
+    .ticker-logo {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2px 4px;
+      height: 100%;
+      background: #2E5CFF;
+      flex-shrink: 0;
+      z-index: 3;
+    }
+
+    .ticker-logo svg {
+      display: block;
+    }
+
+    /* Right-edge fade on logo */
+    .ticker-logo-fade {
+      width: 22px;
+      height: 100%;
+      background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%);
+      transform: scaleX(-1);
+      flex-shrink: 0;
+      z-index: 2;
+      margin-left: -22px;
+      position: relative;
+    }
+
+    /* Scrolling area — flex row so the two sibling lists sit side by side */
+    .ticker-scroll-area {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+    }
+
+    /* Left gradient — fades content as it slides under the logo pill */
+    .ticker-scroll-area::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 32px; height: 100%;
+      background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Right gradient — fades content at the far right edge */
+    .ticker-scroll-area::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 40px; height: 100%;
+      background: linear-gradient(270deg, #000 0%, rgba(0,0,0,0) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Each list is flex:none so it never stretches.
+       padding-right creates the gap between end of this list and
+       start of the next. Both lists share the same animation so they
+       stay perfectly in sync — no gap, no jump. */
+    .ticker-track {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: none;
+      height: 100%;
+      padding-right: 60px;
+      will-change: transform;
+      animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
+      animation-play-state: paused;
+    }
+
+    @keyframes ticker-scroll {
+      to { transform: translateX(-100%); }
+    }
+
+    /* ── Individual items ─────────────────────────────────────── */
+    .ticker-item {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 7px;
+      height: 100%;
+      flex-shrink: 0;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .ticker-question {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-weight: 500;
+      font-size: 1rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .ticker-odds {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-weight: 500;
+      font-size: 1rem;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ticker-odds.yes { color: #65D26E; }
+    .ticker-odds.no  { color: #FF6C6C; }
+
+    /* Vertical divider between items */
+    .ticker-divider {
+      display: inline-block;
+      width: 1px;
+      height: 100%;
+      background: rgba(255,255,255,0.5);
+      flex-shrink: 0;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ticker-root">
+  <!-- Polymarket CANDY logo pill -->
+  <div class="ticker-logo">
+    <svg width="58" height="11" viewBox="0 0 58 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M25.1412 8.26339V1.73603H24.0617V8.26339H25.1412ZM14.5442 5.97734V8.26361H13.4214V2.07626H15.8447C16.3216 2.07626 16.7341 2.16054 17.0824 2.3291C17.4306 2.49767 17.6958 2.73138 17.8779 3.0303C18.0599 3.32917 18.151 3.66986 18.151 4.05231C18.151 4.45177 18.0607 4.79598 17.88 5.08494C17.6994 5.3739 17.4364 5.59488 17.091 5.74788C16.7457 5.90088 16.3302 5.97734 15.8447 5.97734H14.5442ZM14.5441 5.09346H15.8447C16.2464 5.09346 16.5433 5.00136 16.7355 4.81723C16.9277 4.63307 17.0238 4.38092 17.0238 4.06079C17.0238 3.8625 16.9819 3.68046 16.8981 3.51473C16.8143 3.34899 16.6842 3.21585 16.5079 3.11527C16.3316 3.01469 16.1106 2.96441 15.8447 2.96441H14.5441V5.09346ZM20.9372 8.34881C21.3852 8.34881 21.7739 8.24827 22.1034 8.04711C22.4329 7.84595 22.685 7.56833 22.8599 7.21417C23.0347 6.86005 23.1221 6.45917 23.1221 6.01155V5.92232C23.1221 5.4747 23.0347 5.07382 22.8599 4.7197C22.685 4.36558 22.4321 4.08722 22.1012 3.88463C21.7703 3.68208 21.3794 3.5808 20.9286 3.5808C20.4835 3.5808 20.0962 3.68208 19.7668 3.88463C19.4373 4.08722 19.1851 4.36558 19.0103 4.7197C18.8355 5.07382 18.748 5.4747 18.748 5.92232V6.01155C18.748 6.45917 18.8355 6.86005 19.0103 7.21417C19.1851 7.56833 19.438 7.84595 19.7689 8.04711C20.0998 8.24827 20.4893 8.34881 20.9372 8.34881ZM20.1049 7.08254C20.2899 7.3602 20.5673 7.49903 20.9373 7.49903C21.1829 7.49903 21.3888 7.43313 21.555 7.30139C21.7212 7.16968 21.844 6.99191 21.9235 6.7681C22.003 6.54426 22.0427 6.29215 22.0427 6.01166V5.92243C22.0427 5.64477 22.003 5.39336 21.9235 5.16812C21.844 4.94288 21.7205 4.76371 21.5529 4.63053C21.3852 4.4974 21.1771 4.43081 20.9286 4.43081C20.6829 4.43081 20.4777 4.4974 20.313 4.63053C20.1483 4.76371 20.0262 4.94288 19.9467 5.16812C19.8672 5.39336 19.8274 5.64477 19.8274 5.92243V6.01166C19.8274 6.44793 19.92 6.80492 20.1049 7.08254ZM27.6435 9.77792C27.4224 10.006 27.1067 10.12 26.6962 10.12C26.5546 10.12 26.3827 10.0945 26.1804 10.0435V9.23185L26.3798 9.24037C26.637 9.24037 26.8328 9.19573 26.9672 9.10649C27.1016 9.01726 27.2078 8.86074 27.2858 8.63693L27.4332 8.24596L25.7859 3.66494H26.952L27.9274 6.75011L28.8725 3.66494H30.0213L28.1529 8.95988C28.0344 9.27719 27.8646 9.54985 27.6435 9.77792ZM31.6892 8.26383V4.94068C31.8626 4.60921 32.1559 4.44347 32.5692 4.44347C32.8409 4.44347 33.0467 4.50863 33.1869 4.63894C33.3272 4.76925 33.3973 4.98884 33.3973 5.29762V8.26383H34.4767V5.19991L34.4723 5.10216C34.5358 4.901 34.6436 4.74095 34.7953 4.62194C34.947 4.50297 35.1356 4.44347 35.3612 4.44347C35.6355 4.44347 35.8415 4.5051 35.9788 4.62833C36.1161 4.75156 36.1848 4.97041 36.1848 5.28489V8.26383H37.2642V5.28914C37.2642 4.69701 37.1328 4.26426 36.8696 3.9909C36.6067 3.7175 36.2265 3.5808 35.7296 3.5808C35.4143 3.5808 35.1356 3.64243 34.8927 3.76566C34.6502 3.88889 34.449 4.06101 34.2903 4.28199C34.1718 4.04402 34.0027 3.86764 33.7831 3.75292C33.5634 3.63818 33.3062 3.5808 33.0114 3.5808C32.7224 3.5808 32.4644 3.62966 32.2376 3.72741C32.0107 3.82517 31.8178 3.96609 31.6588 4.15025L31.6241 3.66578H30.6097V8.26383H31.6892ZM40.4709 8.20859C40.2657 8.30208 40.0331 8.34881 39.7729 8.34881C39.4665 8.34881 39.1922 8.28934 38.9493 8.17034C38.7064 8.05137 38.517 7.88703 38.3816 7.67739C38.2457 7.46775 38.1778 7.2326 38.1778 6.97197C38.1778 6.48185 38.3635 6.10648 38.7348 5.84582C39.1062 5.58519 39.6329 5.45488 40.3148 5.45488H40.9652V5.1574C40.9652 4.91377 40.8973 4.72322 40.7614 4.58582C40.6256 4.44843 40.4248 4.37971 40.1586 4.37971C39.9999 4.37971 39.8596 4.40665 39.7382 4.46047C39.6167 4.51428 39.5229 4.58795 39.4565 4.68145C39.3901 4.77494 39.3568 4.87974 39.3568 4.99592H38.2775C38.2775 4.74943 38.3576 4.51784 38.5178 4.30112C38.6783 4.0844 38.9065 3.91014 39.2029 3.7784C39.4989 3.64666 39.8378 3.5808 40.2195 3.5808C40.5779 3.5808 40.8943 3.64031 41.1689 3.75928C41.4436 3.87828 41.6581 4.05675 41.8127 4.29473C41.9674 4.53271 42.0445 4.8231 42.0445 5.16588V7.19296C42.0445 7.61223 42.104 7.9451 42.2225 8.19159V8.26383H41.1213C41.0748 8.16468 41.0346 8.0216 40.9999 7.83464C40.8522 7.99043 40.6761 8.11509 40.4709 8.20859ZM39.981 7.50292C39.7529 7.50292 39.575 7.44411 39.448 7.32657C39.3207 7.209 39.2572 7.0567 39.2572 6.86971C39.2572 6.6289 39.3539 6.44195 39.5477 6.30878C39.7411 6.17564 40.0261 6.10905 40.4015 6.10905H40.9652V6.96746C40.8843 7.11477 40.7562 7.24086 40.5816 7.34566C40.4067 7.4505 40.2066 7.50292 39.981 7.50292ZM44.2066 5.13189V8.26383H43.1272V3.66578H44.1546L44.1848 4.18424C44.3033 3.9916 44.451 3.84286 44.6271 3.73802C44.8035 3.63322 45.0073 3.5808 45.2384 3.5808C45.2993 3.5808 45.3676 3.58646 45.4443 3.5978C45.5207 3.60914 45.578 3.62188 45.6156 3.63605L45.6068 4.63468C45.4624 4.61203 45.3192 4.60069 45.1778 4.60069C44.695 4.60069 44.3712 4.77777 44.2066 5.13189ZM47.3439 8.26339V6.77177L47.8168 6.30008L49.1823 8.26339H50.4307L48.5104 5.57767L50.2487 3.66534H48.9482L47.6651 5.08894L47.3439 5.47992V1.73603H46.269V8.26339H47.3439ZM54.0885 8.10235C53.7851 8.26666 53.4178 8.34881 52.9874 8.34881C52.5307 8.34881 52.1317 8.25179 51.7906 8.05772C51.4499 7.86368 51.1882 7.59806 51.0062 7.26094C50.8242 6.92381 50.733 6.54558 50.733 6.1263V5.95205C50.733 5.47896 50.8253 5.06321 51.0106 4.70483C51.1956 4.34645 51.4499 4.06949 51.7733 3.87402C52.097 3.67855 52.4613 3.5808 52.8659 3.5808C53.3082 3.5808 53.6795 3.67573 53.98 3.86554C54.2805 4.05532 54.5053 4.32094 54.654 4.66232C54.8028 5.0037 54.8774 5.39964 54.8774 5.85008V6.29629H51.8213C51.8412 6.53141 51.9036 6.73965 52.0077 6.92095C52.1114 7.10229 52.2524 7.24394 52.4303 7.34592C52.6079 7.44793 52.8153 7.49892 53.0523 7.49892C53.5378 7.49892 53.9279 7.31193 54.2229 6.93798L54.7995 7.48618C54.6289 7.73263 54.392 7.93805 54.0885 8.10235ZM53.8109 5.53145H51.8427C51.8918 5.18299 52.0032 4.91245 52.1767 4.71981C52.3499 4.52713 52.5784 4.43081 52.8615 4.43081C53.1793 4.43081 53.4137 4.52643 53.564 4.71768C53.7142 4.90889 53.7965 5.15325 53.8109 5.45073V5.53145ZM57.8759 8.24676C57.6681 8.31475 57.434 8.34874 57.1738 8.34874C56.7921 8.34874 56.4916 8.24533 56.272 8.03852C56.0523 7.83171 55.9427 7.50167 55.9427 7.04837V4.44762H55.1797V3.66571H55.9427V2.54384H57.0221V3.66571H57.8456V4.44762H57.0221V6.97612C57.0221 7.16877 57.0623 7.29981 57.1435 7.36923C57.2244 7.43864 57.3458 7.47333 57.5075 7.47333C57.623 7.47333 57.746 7.45916 57.8759 7.43082V8.24676Z" fill="white"/>
+      <path d="M8.66446 9.55091C8.66446 10.0115 8.66446 10.2418 8.51355 10.356C8.36265 10.4701 8.14049 10.4079 7.69619 10.2835L0.556352 8.28378C0.288655 8.2088 0.154807 8.17131 0.0774033 8.06939C-1.04308e-07 7.96748 0 7.82873 0 7.55122V2.86481C0 2.5873 -1.04308e-07 2.44855 0.0774033 2.34663C0.154807 2.24471 0.288655 2.20723 0.556352 2.13225L7.69619 0.132559C8.14049 0.00812061 8.36265 -0.0540985 8.51355 0.0600723C8.66446 0.174243 8.66446 0.404534 8.66446 0.865115V9.55091ZM1.78065 7.6318L7.69246 9.28775V5.97605L1.78065 7.6318ZM0.971934 6.86358L6.88257 5.20801L0.971934 3.55244V6.86358ZM1.78059 2.78422L7.69246 4.44004V1.12828L1.78059 2.78422Z" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- Scrolling ticker -->
+  <div class="ticker-scroll-area">
+    <div class="ticker-track" id="tickerTrack">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────
+  const SCROLL_PX_PER_SEC = 45;
+  const REFRESH_MS        = 60 * 60 * 1000; // 1 hour
+  const MARKET_COUNT      = 10;
+
+  // Full URL required — relative paths don't work when GAM hosts the zip.
+  // Update this to your deployed Vercel URL before uploading to GAM.
+  const API_URL = 'https://polymarket-ticker.vercel.app/api/markets';
+
+  // GAM click tag — GAM injects the destination URL at serve time.
+  // Falls back to polymarket.com/finance/privates if not in GAM context.
+  var clickTag = typeof clickTag !== 'undefined' && clickTag
+    ? clickTag
+    : 'https://polymarket.com/finance/privates';
+
+  // ── API helpers ─────────────────────────────────────────────────
+  async function fetchPrivatesMarkets() {
+    try {
+      const res = await fetch(API_URL);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch (e) {
+      console.warn('[ticker] proxy fetch failed', e);
+    }
+    return null;
+  }
+
+  // ── Data shaping ─────────────────────────────────────────────────
+  // The proxy already returns shaped {question, yesPct, slug} objects.
+  function parseItem(market) {
+    const question = (market.question || '').trim();
+    const yesPct   = market.yesPct ?? 50;
+    const isYes    = yesPct >= 50;
+    return {
+      question,
+      label:      isYes ? 'YES' : 'NO',
+      pct:        yesPct,
+      colorClass: isYes ? 'yes' : 'no',
+      slug:       market.slug || '',
+    };
+  }
+
+  // ── DOM helpers ──────────────────────────────────────────────────
+  function esc(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderItems(items) {
+    return items.map((item, i) => {
+      const divider = i > 0 ? '<span class="ticker-divider"></span>' : '';
+      // Use GAM Enabler exit if available, otherwise direct link
+      const marketUrl = item.slug
+        ? `https://polymarket.com/event/${esc(item.slug)}`
+        : 'https://polymarket.com/finance/privates';
+      const onclick = `(typeof Enabler!=='undefined'&&Enabler.isInitialized())?Enabler.exit('clickTag','${marketUrl}'):window.open('${marketUrl}','_blank');return false;`;
+      return `${divider}<a class="ticker-item" href="${marketUrl}" onclick="${onclick}" target="_blank" rel="noopener">
+        <span class="ticker-question">${esc(item.question)}</span>
+        <span class="ticker-odds ${item.colorClass}">${item.label} ${item.pct}%</span>
+      </a>`;
+    }).join('');
+  }
+
+  // ── Animation ────────────────────────────────────────────────────
+  let resizeTimer = null;
+
+  function startMarquee() {
+    const area  = document.querySelector('.ticker-scroll-area');
+    const track = document.getElementById('tickerTrack');
+
+    // Remove previous clone
+    const old = area.querySelector('.ticker-clone');
+    if (old) old.remove();
+
+    // Measure one set of items
+    track.innerHTML = cachedItemsHTML;
+    void track.offsetWidth;
+    const singleWidth = track.offsetWidth;
+
+    // Repeat items until the list is wider than the scroll area —
+    // guarantees no black gap is ever visible on any viewport width.
+    const needed = Math.max(2, Math.ceil((area.offsetWidth + singleWidth) / singleWidth));
+    let html = cachedItemsHTML;
+    for (let i = 1; i < needed; i++) {
+      html += '<span class="ticker-divider"></span>' + cachedItemsHTML;
+    }
+    track.innerHTML = html;
+    void track.offsetWidth;
+
+    const duration = track.offsetWidth / SCROLL_PX_PER_SEC;
+    track.style.setProperty('--ticker-duration', `${duration}s`);
+    track.style.animationPlayState = 'paused';
+
+    // Clone the filled list — both animate translateX(-100%) in sync,
+    // always perfectly adjacent, zero gap possible.
+    const clone = track.cloneNode(true);
+    clone.id = '';
+    clone.classList.add('ticker-clone');
+    area.appendChild(clone);
+
+    track.style.animationPlayState = 'running';
+    clone.style.animationPlayState = 'running';
+  }
+
+  // ── Main update ──────────────────────────────────────────────────
+  let cachedItemsHTML = '';
+
+  async function updateTicker() {
+    const markets = await fetchPrivatesMarkets();
+
+    let items;
+    if (markets && markets.length > 0) {
+      items = markets.map(parseItem).filter(i => i.question);
+    } else {
+      items = [
+        { question: 'OpenAI $750B valuation by Dec 31?',     label: 'YES', pct: 61, colorClass: 'yes', slug: '' },
+        { question: 'SpaceX $1.75T valuation by Dec 31?',    label: 'NO',  pct: 34, colorClass: 'no',  slug: '' },
+        { question: 'Anthropic $500B valuation by Dec 31?',  label: 'YES', pct: 67, colorClass: 'yes', slug: '' },
+        { question: 'Databricks $150B valuation by Dec 31?', label: 'YES', pct: 47, colorClass: 'yes', slug: '' },
+      ];
+    }
+
+    cachedItemsHTML = renderItems(items);
+    requestAnimationFrame(startMarquee);
+  }
+
+  // Recalculate duration on resize (content width doesn't change, only
+  // needed if font scaling changes — debounced to avoid re-entrant calls)
+  const resizeObserver = new ResizeObserver(() => {
+    if (!cachedItemsHTML) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(startMarquee, 50);
+  });
+  resizeObserver.observe(document.querySelector('.ticker-scroll-area'));
+
+  // Boot
+  updateTicker();
+  setInterval(updateTicker, REFRESH_MS);
+</script>
+</body>
+</html>

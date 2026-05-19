@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="ad.size" content="width=300,height=600" />
+  <title>Polymarket 300x600</title>
+  <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 300px;
+      height: 600px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .ad-root {
+      position: relative;
+      width: 300px;
+      height: 600px;
+      overflow: hidden;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Grid background */
+    .ad-grid {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 648px;
+      height: 648px;
+      background-image: url('../assets/grid-300.png');
+      background-position: center;
+      background-size: contain;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Main content wrapper — flex column, centered */
+    .ad-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    /* Market cards */
+    .market-card {
+      width: 254px;
+      min-height: 112px;
+      background: #fafafa;
+      border: 0.69px solid #cdd4db;
+      border-radius: 10.5px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 10px;
+      cursor: pointer;
+      text-decoration: none;
+      gap: 4px;
+    }
+
+    .card-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .card-icon {
+      width: 27px;
+      height: 27px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .card-question {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 9.7px;
+      color: #272727;
+      line-height: 13.8px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      flex: 1;
+    }
+
+    .card-data-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 34px;
+    }
+
+    .card-valuation {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 9.1px;
+      color: #232a30;
+      white-space: nowrap;
+    }
+
+    .card-odds {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-pct {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 10.4px;
+      color: #272727;
+    }
+
+    .card-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 27.6px;
+      height: 18.6px;
+      border-radius: 3.6px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 9px;
+    }
+
+    .card-pill.yes {
+      background: rgba(73,193,117,0.15);
+      color: #49c175;
+    }
+
+    .card-pill.no {
+      background: rgba(210,68,68,0.15);
+      color: #d24444;
+    }
+
+    .card-divider {
+      width: 100%;
+      height: 0.69px;
+      background: #cdd4db;
+      margin: 2px 0;
+    }
+
+    /* Center logo section */
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 0;
+    }
+
+    .deco-dots {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .deco-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .logos-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logos-row img.nasdaq {
+      height: 29px;
+      width: 72px;
+      object-fit: contain;
+    }
+
+    .logos-row img.xsep {
+      width: 14.8px;
+      height: 14.8px;
+      object-fit: contain;
+    }
+
+    .logos-row img.pm-lockup {
+      height: 16.3px;
+      width: 90px;
+      object-fit: contain;
+    }
+
+    .headline {
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .headline .line1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -1.2px;
+      color: rgba(0,0,0,0.75);
+      display: block;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .headline .line2 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -1.2px;
+      display: block;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .headline .muted { color: rgba(0,0,0,0.6); }
+    .headline .blue  { color: #2e5cff; }
+  </style>
+</head>
+<body>
+
+<div class="ad-root" onclick="handleRootClick(event)">
+  <div class="ad-grid"></div>
+
+  <div class="ad-content">
+    <!-- Top 2 market cards -->
+    <div id="topCards"></div>
+
+    <!-- Center logo + headline -->
+    <div class="logo-section">
+      <div class="deco-dots">
+        <div class="deco-dot"></div>
+        <div class="deco-dot"></div>
+        <div class="deco-dot"></div>
+      </div>
+      <div class="logos-row">
+        <img class="nasdaq" src="../assets/nasdaq-pm-300.svg" alt="Nasdaq × Polymarket" />
+        <img class="xsep" src="../assets/x-sep-300.svg" alt="×" />
+        <img class="pm-lockup" src="../assets/pm-lockup-300.svg" alt="Polymarket" />
+      </div>
+      <div class="deco-dots">
+        <div class="deco-dot"></div>
+        <div class="deco-dot"></div>
+        <div class="deco-dot"></div>
+      </div>
+      <div class="headline">
+        <span class="line1">Trade private companies,</span>
+        <span class="line2"><span class="muted">exclusively on </span><span class="blue">Polymarket</span></span>
+      </div>
+    </div>
+
+    <!-- Bottom 2 market cards -->
+    <div id="bottomCards"></div>
+  </div>
+</div>
+
+<script>
+  var clickTag = 'https://polymarket.com/finance/privates';
+  var API_URL = 'https://polymarket-ticker.vercel.app/api/markets';
+  var REFRESH_MS = 60 * 60 * 1000;
+
+  var FALLBACK = [
+    { company: 'Anthropic', question: "Will Anthropic's valuation hit __ by Dec 31?", icon: '../assets/icon-anthropic-300.png', slug: '', volume: 0,
+      outcomes: [{ valuation: '↑$1.75T', yesPct: 40, noPct: 60, slug: '' }, { valuation: '↑$3.0T', yesPct: 14, noPct: 86, slug: '' }] },
+    { company: 'OpenAI', question: "Will OpenAI's valuation hit __ by Dec 31?", icon: '../assets/icon-openai-300.png', slug: '', volume: 0,
+      outcomes: [{ valuation: '↓$800B', yesPct: 72, noPct: 28, slug: '' }, { valuation: '↓$750B', yesPct: 50, noPct: 50, slug: '' }] },
+    { company: 'SpaceX', question: "Will SpaceX's valuation hit __ by Jun 30?", icon: '../assets/icon-spacex-300.png', slug: '', volume: 0,
+      outcomes: [{ valuation: '↑$2.5T', yesPct: 46, noPct: 54, slug: '' }, { valuation: '↑$4.0T', yesPct: 3, noPct: 97, slug: '' }] },
+    { company: 'Stripe', question: "Will Stripe's valuation hit __ by Jun 30?", icon: '../assets/icon-stripe-300.png', slug: '', volume: 0,
+      outcomes: [{ valuation: '↑$190B', yesPct: 21, noPct: 79, slug: '' }, { valuation: '↑$200B', yesPct: 15, noPct: 85, slug: '' }] }
+  ];
+
+  function esc(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function handleRootClick(e) {
+    if (e.target.closest('a')) return;
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) {
+      Enabler.exit('clickTag', clickTag);
+    } else {
+      window.open(clickTag, '_blank');
+    }
+  }
+
+  function handleCardClick(e, slug) {
+    e.preventDefault();
+    e.stopPropagation();
+    var url = slug
+      ? 'https://polymarket.com/event/' + slug
+      : 'https://polymarket.com/finance/privates';
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) {
+      Enabler.exit('clickTag', url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  function buildCard(card) {
+    var cardSlug = card.slug || '';
+    var cardUrl = cardSlug
+      ? 'https://polymarket.com/event/' + esc(cardSlug)
+      : 'https://polymarket.com/finance/privates';
+
+    var el = document.createElement('a');
+    el.className = 'market-card';
+    el.href = cardUrl;
+    el.target = '_blank';
+    el.rel = 'noopener';
+    el.addEventListener('click', function(e) { handleCardClick(e, cardSlug); });
+
+    var outcomesHtml = '';
+    var outcomes = card.outcomes || [];
+    for (var i = 0; i < outcomes.length; i++) {
+      var o = outcomes[i];
+      var oSlug = o.slug || '';
+      var yesPct = o.yesPct != null ? o.yesPct : 50;
+      outcomesHtml +=
+        '<div class="card-data-row">' +
+          '<span class="card-valuation">' + esc(o.valuation || '') + '</span>' +
+          '<div class="card-odds">' +
+            '<span class="card-pct">' + yesPct + '%</span>' +
+            '<span class="card-pill yes" data-slug="' + esc(oSlug) + '">Yes</span>' +
+            '<span class="card-pill no" data-slug="' + esc(oSlug) + '">No</span>' +
+          '</div>' +
+        '</div>';
+    }
+
+    el.innerHTML =
+      '<div class="card-row">' +
+        '<img class="card-icon" src="' + esc(card.icon || '') + '" alt="" onerror="this.style.background=\'#eee\';this.src=\'\';" />' +
+        '<div class="card-question">' + esc(card.question || '') + '</div>' +
+      '</div>' +
+      outcomesHtml;
+
+    // Attach pill click handlers after innerHTML is set
+    var pills = el.querySelectorAll('.card-pill');
+    for (var p = 0; p < pills.length; p++) {
+      (function(pill) {
+        pill.addEventListener('click', function(e) {
+          e.stopPropagation();
+          handleCardClick(e, pill.getAttribute('data-slug'));
+        });
+      })(pills[p]);
+    }
+
+    return el;
+  }
+
+  function renderCards(cards) {
+    var top4 = cards.slice(0, 4);
+    var topContainer = document.getElementById('topCards');
+    var bottomContainer = document.getElementById('bottomCards');
+    topContainer.innerHTML = '';
+    bottomContainer.innerHTML = '';
+
+    // Top 2 cards
+    for (var i = 0; i < 2 && i < top4.length; i++) {
+      if (i > 0) {
+        var sep = document.createElement('div');
+        sep.style.height = '10px';
+        topContainer.appendChild(sep);
+      }
+      topContainer.appendChild(buildCard(top4[i]));
+    }
+
+    // Bottom 2 cards
+    for (var j = 2; j < 4 && j < top4.length; j++) {
+      if (j > 2) {
+        var sep2 = document.createElement('div');
+        sep2.style.height = '10px';
+        bottomContainer.appendChild(sep2);
+      }
+      bottomContainer.appendChild(buildCard(top4[j]));
+    }
+  }
+
+  async function fetchAndRender() {
+    var cards = null;
+    try {
+      var res = await fetch(API_URL);
+      if (res.ok) {
+        var data = await res.json();
+        if (Array.isArray(data) && data.length > 0) cards = data;
+      }
+    } catch(e) {
+      console.warn('[300] fetch failed', e);
+    }
+    renderCards(cards || FALLBACK);
+  }
+
+  fetchAndRender();
+  setInterval(fetchAndRender, REFRESH_MS);
+</script>
+</body>
+</html>

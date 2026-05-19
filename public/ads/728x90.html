@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="ad.size" content="width=728,height=90" />
+  <title>Polymarket 728x90</title>
+  <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 728px;
+      height: 90px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .ad-root {
+      position: relative;
+      width: 728px;
+      height: 90px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    /* Grid background */
+    .ad-grid {
+      position: absolute;
+      inset: 0 0 21px 0;
+      background-image: url('../assets/grid-728.png');
+      background-position: center;
+      background-size: cover;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Upper section: top 69px */
+    .ad-upper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 728px;
+      height: 69px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+    }
+
+    .ad-upper .logo-left {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .ad-upper .logo-left img {
+      height: 28px;
+      width: 78px;
+      object-fit: contain;
+    }
+
+    .ad-upper .headline {
+      flex: 1;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .ad-upper .headline .line1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -0.96px;
+      color: rgba(0,0,0,0.75);
+      display: block;
+      white-space: nowrap;
+    }
+
+    .ad-upper .headline .line2 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -0.96px;
+      display: block;
+      white-space: nowrap;
+    }
+
+    .ad-upper .headline .line2 .muted {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .ad-upper .headline .line2 .blue {
+      color: #2e5cff;
+    }
+
+    .ad-upper .logo-right {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .ad-upper .logo-right img {
+      height: 20px;
+      width: 111px;
+      object-fit: contain;
+    }
+
+    /* Lower black ticker strip: bottom 21px */
+    .ad-ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 728px;
+      height: 21px;
+      background: #000;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* CANDY logo pill at left */
+    .ticker-candy {
+      flex-shrink: 0;
+      height: 21px;
+      z-index: 3;
+    }
+
+    .ticker-candy img {
+      height: 21px;
+      width: 72px;
+      display: block;
+      object-fit: fill;
+    }
+
+    /* Scrolling area */
+    .ticker-scroll-area {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+    }
+
+    .ticker-scroll-area::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 22px; height: 100%;
+      background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .ticker-scroll-area::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 32px; height: 100%;
+      background: linear-gradient(270deg, #000 0%, rgba(0,0,0,0) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .ticker-track {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: none;
+      height: 100%;
+      padding-right: 60px;
+      will-change: transform;
+      animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
+      animation-play-state: paused;
+    }
+
+    @keyframes ticker-scroll {
+      to { transform: translateX(-100%); }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 5px;
+      height: 100%;
+      flex-shrink: 0;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .ticker-question {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-weight: 500;
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .ticker-odds {
+      font-family: 'Geist Mono', 'Courier New', monospace;
+      font-weight: 500;
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .ticker-odds.yes { color: #49c175; }
+    .ticker-odds.no  { color: #d24444; }
+
+    .ticker-divider {
+      display: inline-block;
+      width: 1px;
+      height: 60%;
+      background: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+      margin: 0 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ad-root" onclick="handleClick(event)">
+  <div class="ad-grid"></div>
+
+  <!-- Upper section -->
+  <div class="ad-upper">
+    <div class="logo-left">
+      <img src="../assets/nasdaq-pm-728.svg" alt="Nasdaq × Polymarket" />
+    </div>
+    <div class="headline">
+      <span class="line1">Trade private companies,</span>
+      <span class="line2">
+        <span class="muted">exclusively on </span><span class="blue">Polymarket</span>
+      </span>
+    </div>
+    <div class="logo-right">
+      <img src="../assets/pm-lockup-728.svg" alt="Polymarket" />
+    </div>
+  </div>
+
+  <!-- Lower ticker strip -->
+  <div class="ad-ticker">
+    <div class="ticker-candy">
+      <img src="../assets/ticker-candy-728.svg" alt="" />
+    </div>
+    <div class="ticker-scroll-area">
+      <div class="ticker-track" id="tickerTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var clickTag = 'https://polymarket.com/finance/privates';
+
+  function handleClick(e) {
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) {
+      Enabler.exit('clickTag', clickTag);
+    } else {
+      window.open(clickTag, '_blank');
+    }
+  }
+
+  // ── Ticker config ──────────────────────────────────────────────
+  var SCROLL_PX_PER_SEC = 45;
+  var REFRESH_MS = 60 * 60 * 1000;
+  var API_URL = 'https://polymarket-ticker.vercel.app/api/markets';
+  var cachedItemsHTML = '';
+  var resizeTimer = null;
+
+  function esc(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Flatten company cards → individual ticker items (one per outcome row).
+  // Format: "ANTHROPIC ↑$1.75T  YES 40%"
+  function cardsToTickerItems(cards) {
+    var items = [];
+    for (var c = 0; c < cards.length; c++) {
+      var card = cards[c];
+      var company = (card.company || '').toUpperCase();
+      var outcomes = card.outcomes || [];
+      for (var o = 0; o < outcomes.length; o++) {
+        var out = outcomes[o];
+        var yesPct = out.yesPct != null ? out.yesPct : 50;
+        var isYes = yesPct >= 50;
+        items.push({
+          question: company + ' ' + (out.valuation || ''),
+          label: isYes ? 'YES' : 'NO',
+          pct: yesPct,
+          colorClass: isYes ? 'yes' : 'no',
+          slug: out.slug || card.slug || ''
+        });
+      }
+    }
+    return items;
+  }
+
+  function renderItems(items) {
+    return items.map(function(item, i) {
+      var divider = i > 0 ? '<span class="ticker-divider"></span>' : '';
+      var marketUrl = item.slug
+        ? 'https://polymarket.com/event/' + esc(item.slug)
+        : 'https://polymarket.com/finance/privates';
+      var onclick = "(typeof Enabler!=='undefined'&&Enabler.isInitialized&&Enabler.isInitialized())?Enabler.exit('clickTag','" + marketUrl + "'):window.open('" + marketUrl + "','_blank');return false;";
+      return divider + '<a class="ticker-item" href="' + marketUrl + '" onclick="' + onclick + '" target="_blank" rel="noopener">' +
+        '<span class="ticker-question">' + esc(item.question) + '</span>' +
+        '<span class="ticker-odds ' + item.colorClass + '">' + item.label + ' ' + item.pct + '%</span>' +
+        '</a>';
+    }).join('');
+  }
+
+  function startMarquee() {
+    var area = document.querySelector('.ticker-scroll-area');
+    var track = document.getElementById('tickerTrack');
+    var old = area.querySelector('.ticker-clone');
+    if (old) old.remove();
+
+    track.innerHTML = cachedItemsHTML;
+    void track.offsetWidth;
+    var singleWidth = track.offsetWidth;
+
+    var needed = Math.max(2, Math.ceil((area.offsetWidth + singleWidth) / singleWidth));
+    var html = cachedItemsHTML;
+    for (var i = 1; i < needed; i++) {
+      html += '<span class="ticker-divider"></span>' + cachedItemsHTML;
+    }
+    track.innerHTML = html;
+    void track.offsetWidth;
+
+    var duration = track.offsetWidth / SCROLL_PX_PER_SEC;
+    track.style.setProperty('--ticker-duration', duration + 's');
+    track.style.animationPlayState = 'paused';
+
+    var clone = track.cloneNode(true);
+    clone.id = '';
+    clone.classList.add('ticker-clone');
+    area.appendChild(clone);
+
+    track.style.animationPlayState = 'running';
+    clone.style.animationPlayState = 'running';
+  }
+
+  async function fetchPrivatesMarkets() {
+    try {
+      var res = await fetch(API_URL);
+      if (res.ok) {
+        var data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch(e) {
+      console.warn('[ticker] fetch failed', e);
+    }
+    return null;
+  }
+
+  var FALLBACK_ITEMS = [
+    { question: 'ANTHROPIC ↑$1.75T', label: 'YES', pct: 40, colorClass: 'yes', slug: '' },
+    { question: 'ANTHROPIC ↑$3.0T',  label: 'NO',  pct: 14, colorClass: 'no',  slug: '' },
+    { question: 'OPENAI ↓$800B',     label: 'YES', pct: 72, colorClass: 'yes', slug: '' },
+    { question: 'OPENAI ↓$750B',     label: 'YES', pct: 50, colorClass: 'yes', slug: '' },
+    { question: 'SPACEX ↑$2.5T',     label: 'YES', pct: 46, colorClass: 'yes', slug: '' },
+    { question: 'STRIPE ↑$190B',     label: 'NO',  pct: 21, colorClass: 'no',  slug: '' }
+  ];
+
+  async function updateTicker() {
+    var cards = await fetchPrivatesMarkets();
+    var items;
+    if (cards && cards.length > 0) {
+      items = cardsToTickerItems(cards);
+    } else {
+      items = FALLBACK_ITEMS;
+    }
+    cachedItemsHTML = renderItems(items);
+    requestAnimationFrame(startMarquee);
+  }
+
+  var resizeObserver = new ResizeObserver(function() {
+    if (!cachedItemsHTML) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(startMarquee, 50);
+  });
+  resizeObserver.observe(document.querySelector('.ticker-scroll-area'));
+
+  updateTicker();
+  setInterval(updateTicker, REFRESH_MS);
+</script>
+</body>
+</html>
