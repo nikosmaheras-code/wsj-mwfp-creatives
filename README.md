@@ -41,23 +41,9 @@ Both variants render an identical creative.
 
 Swap the path for any size or for `/standalone/{w}x{h}.html`.
 
-## Click attribution
+## Click destination
 
-Every creative click-throughs to a Polymarket AppsFlyer OneLink:
-
-```
-https://polymarket-app.onelink.me/S8ac
-  ?pid=WSJ
-  &c=MWFP
-  &deep_link_sub1=PRIVATES
-  &af_sub1=wsj_mwfp_<format>
-  &af_ad=privates_v1
-  &af_xp=referral
-  &is_retargeting=true
-  &af_reengagement_window=30d
-```
-
-Per-format `af_sub1` lets you slice CTR by placement in AppsFlyer.
+Every creative click-throughs to `https://polymarket.com/finance/privates`. Individual ticker rows deep-link to their specific market on `polymarket.com/event/<slug>`.
 
 ## Folder layout
 
