@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+<title>Polymarket AI 3800x800</title>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 3800px; height: 800px; overflow: hidden; background: #fff; }
+    .pmt-root { position: relative; width: 3800px; height: 800px; overflow: hidden; background: #fff; cursor: pointer; }
+
+    .ad-bg { position: absolute; inset: 0; background: url('../assets-v2/bg-corridor.png') center / cover no-repeat; pointer-events: none; }
+    .ad-face { position: absolute; top: 56px; height: 818px; width: auto; pointer-events: none; z-index: 1; }
+    .ad-face.left  { left: -40px;  }
+    .ad-face.right { right: -40px; }
+    .ad-center { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 56px; }
+    .logos-row { display: flex; align-items: center; gap: 24px; margin-bottom: 90px; }
+    .logos-row img.nasdaq    { width: 240px; height: 96px; object-fit: contain; }
+    .logos-row img.xsep      { width: 48px;  height: 48px; object-fit: contain; }
+    .logos-row img.pm-lockup { width: 300px; height: 54px; object-fit: contain; }
+    .label { font-family: 'Geist Mono', ui-monospace, monospace; font-weight: 500; font-size: 32px; letter-spacing: 0.06em; color: #2e5cff; line-height: 1; margin-bottom: 22px; }
+    .headline { font-family: 'Source Serif 4', Georgia, serif; font-weight: 500; font-size: 100px; letter-spacing: -4.0px; line-height: 0.9; color: rgba(0,0,0,0.75); text-align: center; white-space: nowrap; }
+
+    .cards-row { position: absolute; bottom: -32px; left: 50%; transform: translateX(-50%); display: flex; gap: 26px; }
+
+    .market-card {
+      position: relative;
+      width: 1044px;
+      height: 374px;
+      border-radius: 38px;
+      background: transparent;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 34px 0 71px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .market-card::before {
+      content: '';
+      position: absolute;
+      top: -150%; left: -100%;
+      width: 300%; height: 400%;
+      background: conic-gradient(from 0deg,
+        #efefef 0deg, #efefef 216deg,
+        #2e5cff 216deg, #2e5cff 360deg);
+      animation: rotate-border 12s linear infinite;
+      z-index: 0;
+    }
+    .market-card::after {
+      content: '';
+      position: absolute;
+      inset: 0.5px;
+      background: #fafafa;
+      border-radius: calc(38px - 0.5px);
+      z-index: 1;
+    }
+    .market-card:nth-child(2)::before { animation-direction: reverse; }
+    .market-card > * { position: relative; z-index: 2; }
+    @keyframes rotate-border { to { transform: rotate(360deg); } }
+
+    .card-top { position: relative; display: flex; gap: 22px; padding: 0 32px; flex-shrink: 0; align-items: center; }
+    .card-icon { width: 106px; height: 106px; border-radius: 19px; object-fit: cover; flex-shrink: 0; }
+    .card-question { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 37px; color: #272727; line-height: 53px; letter-spacing: -0.24px; overflow: hidden; flex: 1; }
+    .card-body { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 5px 32px 0; }
+    .card-valuation { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 36px; color: #232a30; letter-spacing: -0.24px; white-space: nowrap; }
+    .card-odds { display: flex; align-items: center; gap: 11px; }
+    .card-pct { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 41px; color: #232a30; padding-right: 11px; white-space: nowrap; }
+    .card-pill { display: flex; align-items: center; justify-content: center; width: 108px; height: 72px; border-radius: 14px; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 35px; line-height: 43px; cursor: pointer; }
+    .card-pill.yes { background: rgba(73,193,117,0.15); color: #49c175; }
+    .card-pill.no  { background: rgba(210,68,68,0.15);  color: #d24444; }
+    .card-volume { position: relative; display: flex; align-items: center; justify-content: space-between; padding: 15px 32px 0; }
+    .card-volume-text { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 31px; color: #7b8996; letter-spacing: -0.24px; white-space: nowrap; }
+    .card-pm-icon { width: 23px; height: 28px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="pmt-root" onclick="handleRootClick(event)">
+  <div class="ad-bg"></div>
+  <img class="ad-face left"  src="../assets-v2/face-left.png"  alt="" />
+  <img class="ad-face right" src="../assets-v2/face-right.png" alt="" />
+  <div class="ad-center">
+    <div class="logos-row">
+      <img class="nasdaq" src="../assets/nasdaq-pm-970.svg" alt="Nasdaq × Polymarket" />
+      <img class="xsep" src="../assets/x-sep-970.svg" alt="×" />
+      <img class="pm-lockup" src="../assets/pm-lockup-970.svg" alt="Polymarket" />
+    </div>
+    <div class="label">EXCLUSIVELY ON POLYMARKET</div>
+    <div class="headline">Private companies are now tradable</div>
+    <div class="cards-row" id="cardsRow"></div>
+  </div>
+</div>
+<script>
+  var clickTag = 'https://polymarket.com/finance/privates';
+  var API_URL = 'https://gamma-api.polymarket.com/events?slug=will-openais-valuation-hit-by-december-31&slug=will-anthropics-valuation-hit-by-december-31';
+  var REFRESH_MS = 60 * 60 * 1000;
+  var VALUATION_RE = /will (.+?)['']s?\s+valuation hit/i;
+  var COMPANY_ICONS = {
+    'anthropic':  '../assets/icon-anthropic.png',
+    'openai':     '../assets/icon-openai.png',
+    'discord':    '../assets/icon-discord.png',
+    'perplexity': '../assets/icon-perplexity.png',
+    'spacex':     '../assets/icon-spacex.png',
+    'stripe':     '../assets/icon-stripe.png',
+  };
+  function resolveIcon(c, f) { return COMPANY_ICONS[(c || '').toLowerCase()] || f || ''; }
+  function extractDollarAmount(label) {
+    if (!label) return 0;
+    var m = label.match(/\$([\d.]+)\s*([BT])?/i);
+    if (!m) return 0;
+    var n = parseFloat(m[1]); var u = (m[2] || '').toUpperCase();
+    return u === 'T' ? n * 1000 : n;
+  }
+// Live odds for the $1.0T markets — fetched directly by event slug, refreshed hourly.
+  var TARGET_GROUP_TITLE_RE = /\$\s*1(?:\.0)?\s*T/i;  // matches "$1T", "$1.0T", "↑$1.0T" etc.
+  var TARGET_COMPANIES = ['openai', 'anthropic'];
+  var COMPANY_BY_SLUG = {
+    'will-openais-valuation-hit-by-december-31':    'openai',
+    'will-anthropics-valuation-hit-by-december-31': 'anthropic',
+  };
+  function parseGammaEvents(events) {
+    var byCo = {};
+    for (var i = 0; i < events.length; i++) {
+      var evt = events[i];
+      var co = COMPANY_BY_SLUG[evt.slug];
+      if (!co) continue;
+      byCo[co] = evt;
+    }
+    var out = [];
+    for (var j = 0; j < TARGET_COMPANIES.length; j++) {
+      var c = TARGET_COMPANIES[j];
+      if (byCo[c]) { var card = eventToCard(c, byCo[c]); if (card) out.push(card); }
+    }
+    return out;
+  }
+  function eventToCard(co, evt) {
+    var ms = (evt.markets || []).filter(function(m) {
+      return TARGET_GROUP_TITLE_RE.test(m.groupItemTitle || '');
+    });
+    if (!ms.length) return null;
+    var picked = ms[0];
+    var yes = 50;
+    try { var p = JSON.parse(picked.outcomePrices || '[]'); if (p.length) yes = Math.round(parseFloat(p[0]) * 100); } catch(_) {}
+    var displayCo = co === 'openai' ? 'OpenAI' : 'Anthropic';
+    return {
+      company:   displayCo,
+      question:  'Will ' + displayCo + ' hit a $1T valuation by Dec 31?',
+      icon:      resolveIcon(co, evt.icon),
+      slug:      evt.slug || '',
+      volume:    parseFloat(picked.volume || 0),
+      valuation: '$1T',
+      yesPct:    yes
+    };
+  }
+  var FALLBACK = [
+    { company: 'OpenAI',    question: "Will OpenAI hit a $1T valuation by Dec 31?",    icon: '../assets/icon-openai.png',    slug: 'will-openais-valuation-hit-by-december-31',    volume: 2762, valuation: '$1T', yesPct: 63 },
+    { company: 'Anthropic', question: "Will Anthropic hit a $1T valuation by Dec 31?", icon: '../assets/icon-anthropic.png', slug: 'will-anthropics-valuation-hit-by-december-31', volume: 8331, valuation: '$1T', yesPct: 92 }
+  ];
+  function formatVolume(v) {
+    if (!v) return '';
+    if (v >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B Vol.';
+    if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M Vol.';
+    if (v >= 1e3) return '$' + Math.round(v / 1e3) + 'K Vol.';
+    return '$' + Math.round(v) + ' Vol.';
+  }
+  var PM_ICON_SVG = '<svg class="card-pm-icon" viewBox="0 0 13.507 16.268" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.998 0.207C12.690 0.013 13.036-0.084 13.272 0.094C13.507 0.272 13.507 0.632 13.507 1.351V14.918C13.507 15.637 13.507 15.997 13.272 16.175C13.036 16.353 12.690 16.256 11.998 16.061L0.867 12.938C0.450 12.821 0.242 12.763 0.121 12.603C0 12.444 0 12.227 0 11.794V4.475C0 4.041 0 3.824 0.121 3.665C0.242 3.506 0.450 3.447 0.867 3.330L11.998 0.207Z M2.775 11.920L11.992 14.507V9.334L2.775 11.920Z M1.515 10.720L10.730 8.135L1.515 5.549V10.720Z M2.775 4.349L11.992 6.934V1.762L2.775 4.349Z" fill="#7b8996"/></svg>';
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function fmtQ(q) { return esc(q); }
+  function handleRootClick(e) {
+    if (e.target.closest('a')) return;
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) Enabler.exit('clickTag', clickTag);
+    else window.open(clickTag, '_blank');
+  }
+  function handleCardClick(e, slug) {
+    e.preventDefault(); e.stopPropagation();
+    var u = slug ? 'https://polymarket.com/event/' + slug : clickTag;
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) Enabler.exit('clickTag', u);
+    else window.open(u, '_blank');
+  }
+  function buildCard(card) {
+    var slug = card.slug || '';
+    var url = slug ? 'https://polymarket.com/event/' + esc(slug) : clickTag;
+    var el = document.createElement('a');
+    el.className = 'market-card';
+    el.href = url; el.target = '_blank'; el.rel = 'noopener';
+    el.addEventListener('click', function(e) { handleCardClick(e, slug); });
+    var volStr = formatVolume(card.volume || 0);
+    var volumeHtml = volStr ? '<div class="card-volume"><span class="card-volume-text">' + esc(volStr) + '</span>' + PM_ICON_SVG + '</div>' : '';
+    el.innerHTML =
+      '<div class="card-fill"></div>' +
+      '<div class="card-darken"></div>' +
+      '<div class="card-top">' +
+        '<img class="card-icon" src="' + esc(card.icon || '') + '" alt="" onerror="this.style.background=\'#eee\';this.src=\'\';" />' +
+        '<div class="card-question">' + fmtQ(card.question || '') + '</div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<span class="card-valuation">' + esc(card.valuation || '') + '</span>' +
+        '<div class="card-odds">' +
+          '<span class="card-pct">' + (card.yesPct != null ? card.yesPct : 50) + '%</span>' +
+          '<span class="card-pill yes" data-slug="' + esc(slug) + '">Yes</span>' +
+          '<span class="card-pill no" data-slug="' + esc(slug) + '">No</span>' +
+        '</div>' +
+      '</div>' +
+      volumeHtml;
+    var pills = el.querySelectorAll('.card-pill');
+    for (var p = 0; p < pills.length; p++) {
+      (function(pill) { pill.addEventListener('click', function(e) { e.stopPropagation(); handleCardClick(e, pill.getAttribute('data-slug')); }); })(pills[p]);
+    }
+    return el;
+  }
+  function render(cards) {
+    var row = document.getElementById('cardsRow') || document.getElementById('cardsCol');
+    row.innerHTML = '';
+    var openai    = cards.find(function(c) { return (c.company || '').toLowerCase() === 'openai'; })    || FALLBACK[0];
+    var anthropic = cards.find(function(c) { return (c.company || '').toLowerCase() === 'anthropic'; }) || FALLBACK[1];
+    row.appendChild(buildCard(openai));
+    row.appendChild(buildCard(anthropic));
+  }
+  async function fetchAndRender() {
+    var cards = null;
+    try {
+      var res = await fetch(API_URL);
+      if (res.ok) { var data = await res.json(); if (Array.isArray(data) && data.length > 0) cards = parseGammaEvents(data); }
+    } catch(e) {}
+    render(cards && cards.length ? cards : FALLBACK);
+  }
+  fetchAndRender();
+  setInterval(fetchAndRender, REFRESH_MS);
+
+</script>
+</body>
+</html>

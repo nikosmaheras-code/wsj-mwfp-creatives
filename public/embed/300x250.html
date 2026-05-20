@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+<title>Polymarket 300x250</title>
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { width: 300px; height: 250px; overflow: hidden; background: #fff; }
+
+    .pmt-root {
+      position: relative;
+      width: 300px;
+      height: 250px;
+      overflow: hidden;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .pmt-grid {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 648px;
+      height: 648px;
+      background-image: url('../assets/grid-300.png');
+      background-position: center;
+      background-size: contain;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      position: absolute;
+      top: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 13.73px;
+      z-index: 1;
+      padding-top: 10.5px;
+    }
+
+    .header img.nasdaq    { width: 60.49px; height: 24.24px; object-fit: contain; }
+    .header img.xsep      { width: 12.3px;  height: 12.3px;  object-fit: contain; }
+    .header img.pm-lockup { width: 75.19px; height: 13.56px; object-fit: contain; }
+
+    /* Cards live in a clipping area so off-screen portions are cleanly hidden */
+    .cards-area {
+      position: absolute;
+      left: 0;
+      top: 60px;       /* below header */
+      width: 300px;
+      height: 145px;   /* ends ~5px above the CTA at y=205 */
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .cards-area > a { pointer-events: auto; }
+
+    .market-card {
+      position: absolute;
+      background: #fafafa;
+      border: 1px solid #cdd4db;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* All cards rendered at FRONT size; transform animates through 4 tiers + exit */
+    .stack-card {
+      left: 44.34px;
+      top: 48px;       /* front bottom touches cards-area bottom (48 + 94 = 142) */
+      width: 212.569px;
+      height: 94.138px;
+      border-width: 0.607px;
+      border-radius: 9.232px;
+      padding: 7.895px 0 0.607px;
+      transform-origin: 50% 50%;
+      will-change: transform;
+      backface-visibility: hidden;
+      animation: deck-cycle 16s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    .stack-card .card-top { padding: 0 7.288px; gap: 4.859px; }
+    .stack-card .card-icon { width: 24.051px; height: 24.051px; border-radius: 4.3px; }
+    .stack-card .card-question { font-size: 8.503px; line-height: 12.147px; letter-spacing: -0.0547px; }
+    .stack-card .card-body { padding: 1.215px 7.288px 4.859px; gap: 4.859px; }
+    .stack-card .card-valuation { font-size: 8.017px; line-height: 12.147px; letter-spacing: -0.0547px; }
+    .stack-card .card-pct { font-size: 9.11px; line-height: 13.665px; padding-right: 2.429px; }
+    .stack-card .card-pill { width: 24.294px; height: 16.398px; border-radius: 3.158px; font-size: 7.895px; line-height: 9.717px; }
+    .stack-card .card-odds { gap: 2.429px; }
+
+    /* 5 cards phase-shifted by 20% of cycle (-3.2s) */
+    .stack-card:nth-of-type(1) { animation-delay: 0s;     }
+    .stack-card:nth-of-type(2) { animation-delay: -3.2s;  }
+    .stack-card:nth-of-type(3) { animation-delay: -6.4s;  }
+    .stack-card:nth-of-type(4) { animation-delay: -9.6s;  }
+    .stack-card:nth-of-type(5) { animation-delay: -12.8s; }
+
+    /* Equal spacing across tiers: translateY delta = −22px, scale delta = +0.05 per step */
+    @keyframes deck-cycle {
+      0%      { transform: translateY(-66px)  scale(0.85); z-index: 1; }
+      20%     { transform: translateY(-44px)  scale(0.90); z-index: 2; }
+      40%     { transform: translateY(-22px)  scale(0.95); z-index: 3; }
+      60%     { transform: translateY(0)      scale(1.00); z-index: 4; }
+      72%     { transform: translateY(0)      scale(1.00); z-index: 4; }
+      /* Instant: drop z to 0 + shrink to tier-1 size — exiting card recedes behind the new front */
+      72.001% { transform: translateY(0)      scale(0.85); z-index: 0; }
+      /* Slide down behind the stack (covered by the next front card) */
+      85%     { transform: translateY(90px)   scale(0.85); z-index: 0; }
+      /* Off-screen wrap to top */
+      85.001% { transform: translateY(-160px) scale(0.85); z-index: 0; }
+      /* Descend smoothly into tier 1 */
+      100%    { transform: translateY(-66px)  scale(0.85); z-index: 1; }
+    }
+
+    /* Soft white fades at the top and bottom of the cards-area */
+    .gradient-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 32px;
+      background: linear-gradient(to bottom, #fff 0%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+      z-index: 100;
+    }
+    .gradient-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 32px;
+      background: linear-gradient(to top, #fff 0%, rgba(255,255,255,0) 100%);
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Shared */
+    .card-top {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .card-icon { object-fit: cover; flex-shrink: 0; }
+    .card-question {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: #272727;
+      overflow: hidden;
+      flex: 1;
+    }
+    .card-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .card-data-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-valuation {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      color: #232a30;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .card-odds {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .card-pct {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: #232a30;
+      white-space: nowrap;
+    }
+    .card-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .card-pill.yes { background: rgba(73,193,117,0.15); color: #49c175; }
+    .card-pill.no  { background: rgba(210,68,68,0.15);  color: #d24444; }
+    .card-volume {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 6px;
+    }
+    .card-volume-text {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 7.2px;
+      color: #7b8996;
+      letter-spacing: -0.055px;
+      white-space: nowrap;
+    }
+    .card-pm-icon {
+      width: 5.9px;
+      height: 7px;
+      flex-shrink: 0;
+    }
+
+    /* CTA */
+    .cta-banner {
+      position: absolute;
+      bottom: 21px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: stretch;
+      height: 24px;
+      z-index: 5;
+    }
+    .cta-text {
+      background: #fff;
+      color: #2448c7;
+      border: 0.6px solid #2e5cff;
+      border-right: none;
+      font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 0.9;
+      padding: 4.8px 4.8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .cta-logo {
+      height: 24px;
+      width: 102px;
+      display: block;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+<div class="pmt-root" onclick="handleRootClick(event)">
+  <div class="pmt-grid"></div>
+
+  <div class="header">
+    <img class="nasdaq" src="../assets/nasdaq-pm-300.svg" alt="Nasdaq × Polymarket" />
+    <img class="xsep" src="../assets/x-sep-300.svg" alt="×" />
+    <img class="pm-lockup" src="../assets/pm-lockup-300.svg" alt="Polymarket" />
+  </div>
+
+  <div class="cards-area">
+    <a class="market-card stack-card" data-slot="0"></a>
+    <a class="market-card stack-card" data-slot="1"></a>
+    <a class="market-card stack-card" data-slot="2"></a>
+    <a class="market-card stack-card" data-slot="3"></a>
+    <a class="market-card stack-card" data-slot="4"></a>
+    <div class="gradient-top"></div>
+    <div class="gradient-bottom"></div>
+  </div>
+
+  <div class="cta-banner">
+    <div class="cta-text">Trade private companies on</div>
+    <img class="cta-logo" src="../assets/pm-inline-970.svg" alt="Polymarket" />
+  </div>
+</div>
+
+<script>
+  var clickTag = 'https://polymarket.com/finance/privates';
+  var API_URL = 'https://gamma-api.polymarket.com/events?active=true&limit=30&tag_slug=privates&order=volume&ascending=false';
+  var REFRESH_MS = 60 * 60 * 1000;
+
+  var VALUATION_RE = /will (.+?)['']s?\s+valuation hit/i;
+
+  var COMPANY_ICONS = {
+    'anthropic':  '../assets/icon-anthropic-300.png',
+    'openai':     '../assets/icon-openai-300.png',
+    'discord':    '../assets/icon-discord-300.png',
+    'perplexity': '../assets/icon-perplexity-300.png',
+    'spacex':     '../assets/icon-spacex.png',
+    'stripe':     '../assets/icon-stripe.png',
+  };
+
+  function resolveIcon(company, fallback) {
+    return COMPANY_ICONS[(company || '').toLowerCase()] || fallback || '';
+  }
+
+  function extractDollarAmount(label) {
+    if (!label) return 0;
+    var m = label.match(/\$([\d.]+)\s*([BT])?/i);
+    if (!m) return 0;
+    var n = parseFloat(m[1]);
+    var unit = (m[2] || '').toUpperCase();
+    return unit === 'T' ? n * 1000 : n;
+  }
+
+  function parseGammaEvents(events) {
+    var byCompany = {};
+    for (var i = 0; i < events.length; i++) {
+      var evt = events[i];
+      var match = VALUATION_RE.exec(evt.title || '');
+      if (!match) continue;
+      var company = match[1].trim();
+      var vol = parseFloat(evt.volume || 0);
+      if (!byCompany[company] || vol > parseFloat(byCompany[company].volume || 0)) {
+        byCompany[company] = evt;
+      }
+    }
+    var cards = [];
+    for (var company in byCompany) {
+      var card = eventToCard(company, byCompany[company]);
+      if (card) cards.push(card);
+    }
+    cards.sort(function(a, b) { return b.volume - a.volume; });
+    return cards.slice(0, 8);
+  }
+
+  function eventToCard(company, evt) {
+    var markets = (evt.markets || []).filter(function(m) {
+      var outcomes = [];
+      try { outcomes = JSON.parse(m.outcomes || '[]'); } catch(_) {}
+      return outcomes.length === 2 && outcomes[0].toLowerCase() === 'yes' && outcomes[1].toLowerCase() === 'no';
+    });
+    if (!markets.length) return null;
+    markets.sort(function(a, b) { return parseFloat(b.volume || 0) - parseFloat(a.volume || 0); });
+    var top2 = markets.slice(0, 2);
+    top2.sort(function(a, b) { return extractDollarAmount(b.groupItemTitle) - extractDollarAmount(a.groupItemTitle); });
+    var outcomes = top2.map(function(m) {
+      var yesPct = 50;
+      try {
+        var prices = JSON.parse(m.outcomePrices || '[]');
+        if (prices.length >= 1) yesPct = Math.round(parseFloat(prices[0]) * 100);
+      } catch(_) {}
+      return { valuation: (m.groupItemTitle || '').trim(), yesPct: yesPct, noPct: 100 - yesPct, slug: m.slug || '' };
+    });
+    return { company: company, question: evt.title || '', icon: resolveIcon(company, evt.icon), slug: evt.slug || '', volume: parseFloat(evt.volume || 0), outcomes: outcomes };
+  }
+
+  var FALLBACK = [
+    { company: 'Stripe', question: "Will Stripe hit a __ valuation by Jun 30?", icon: '../assets/icon-stripe.png', slug: '',
+      outcomes: [{ valuation: '$175B', yesPct: 44, slug: '' }, { valuation: '$200B', yesPct: 19, slug: '' }] },
+    { company: 'Anthropic', question: "Will Anthropic hit a __ valuation by Dec 31?", icon: '../assets/icon-anthropic-300.png', slug: '',
+      outcomes: [{ valuation: '$500B', yesPct: 67, slug: '' }, { valuation: '$750B', yesPct: 31, slug: '' }] },
+    { company: 'SpaceX', question: "Will SpaceX hit a __ valuation by Dec 31?", icon: '../assets/icon-spacex.png', slug: '',
+      outcomes: [{ valuation: '$1.5T', yesPct: 63, slug: '' }, { valuation: '$1.75T', yesPct: 34, slug: '' }] },
+    { company: 'OpenAI', question: "Will OpenAI hit a __ valuation by Dec 31?", icon: '../assets/icon-openai-300.png', slug: '',
+      outcomes: [{ valuation: '$750B', yesPct: 61, slug: '' }] }
+  ];
+
+  function esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtQ(q) {
+    return esc(q).replace(/ by /gi, '<br>by ');
+  }
+
+  function handleRootClick(e) {
+    if (e.target.closest('a')) return;
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) {
+      Enabler.exit('clickTag', clickTag);
+    } else {
+      window.open(clickTag, '_blank');
+    }
+  }
+
+  function handleCardClick(e, slug) {
+    e.preventDefault();
+    e.stopPropagation();
+    var url = slug ? 'https://polymarket.com/event/' + slug : 'https://polymarket.com/finance/privates';
+    if (typeof Enabler !== 'undefined' && Enabler.isInitialized && Enabler.isInitialized()) {
+      Enabler.exit('clickTag', url);
+    } else {
+      window.open(url, '_blank');
+    }
+  }
+
+  function formatVolume(vol) {
+    if (!vol) return '';
+    if (vol >= 1e9) return '$' + (vol / 1e9).toFixed(1) + 'B Vol.';
+    if (vol >= 1e6) return '$' + (vol / 1e6).toFixed(1) + 'M Vol.';
+    if (vol >= 1e3) return '$' + Math.round(vol / 1e3) + 'K Vol.';
+    return '$' + Math.round(vol) + ' Vol.';
+  }
+
+  var PM_ICON_SVG = '<svg class="card-pm-icon" viewBox="0 0 13.507 16.268" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.998 0.207C12.690 0.013 13.036-0.084 13.272 0.094C13.507 0.272 13.507 0.632 13.507 1.351V14.918C13.507 15.637 13.507 15.997 13.272 16.175C13.036 16.353 12.690 16.256 11.998 16.061L0.867 12.938C0.450 12.821 0.242 12.763 0.121 12.603C0 12.444 0 12.227 0 11.794V4.475C0 4.041 0 3.824 0.121 3.665C0.242 3.506 0.450 3.447 0.867 3.330L11.998 0.207Z M2.775 11.920L11.992 14.507V9.334L2.775 11.920Z M1.515 10.720L10.730 8.135L1.515 5.549V10.720Z M2.775 4.349L11.992 6.934V1.762L2.775 4.349Z" fill="#7b8996"/></svg>';
+
+  function renderCardBody(card, maxRows) {
+    var outcomesHtml = '';
+    var outcomes = card.outcomes || [];
+    for (var i = 0; i < Math.min(maxRows, outcomes.length); i++) {
+      var o = outcomes[i];
+      var slug = o.slug || card.slug || '';
+      var yesPct = o.yesPct != null ? o.yesPct : 50;
+      outcomesHtml +=
+        '<div class="card-data-row">' +
+          '<span class="card-valuation">' + esc(o.valuation || '') + '</span>' +
+          '<div class="card-odds">' +
+            '<span class="card-pct">' + yesPct + '%</span>' +
+            '<span class="card-pill yes" data-slug="' + esc(slug) + '">Yes</span>' +
+            '<span class="card-pill no" data-slug="' + esc(slug) + '">No</span>' +
+          '</div>' +
+        '</div>';
+    }
+    var volStr = formatVolume(card.volume || 0);
+    var volumeHtml = volStr
+      ? '<div class="card-volume"><span class="card-volume-text">' + esc(volStr) + '</span>' + PM_ICON_SVG + '</div>'
+      : '';
+    return '<div class="card-body">' + outcomesHtml + volumeHtml + '</div>';
+  }
+
+  function buildCard(el, card, maxRows) {
+    var slug = card.slug || '';
+    el.href = slug ? 'https://polymarket.com/event/' + esc(slug) : 'https://polymarket.com/finance/privates';
+    el.target = '_blank';
+    el.rel = 'noopener';
+    el.addEventListener('click', function(e) { handleCardClick(e, slug); });
+    el.innerHTML =
+      '<div class="card-top">' +
+        '<img class="card-icon" src="' + esc(card.icon || '') + '" alt="" onerror="this.style.background=\'#eee\';this.src=\'\';" />' +
+        '<div class="card-question">' + fmtQ(card.question || '') + '</div>' +
+      '</div>' +
+      renderCardBody(card, maxRows);
+
+    var pills = el.querySelectorAll('.card-pill');
+    for (var p = 0; p < pills.length; p++) {
+      (function(pill) {
+        pill.addEventListener('click', function(e) {
+          e.stopPropagation();
+          handleCardClick(e, pill.getAttribute('data-slug'));
+        });
+      })(pills[p]);
+    }
+  }
+
+  function renderStack(cards) {
+    var slots = document.querySelectorAll('.stack-card');
+    for (var i = 0; i < slots.length; i++) {
+      buildCard(slots[i], cards[i % cards.length], 2);
+    }
+  }
+
+  async function fetchAndRender() {
+    var cards = null;
+    try {
+      var res = await fetch(API_URL);
+      if (res.ok) {
+        var data = await res.json();
+        if (Array.isArray(data) && data.length > 0) cards = parseGammaEvents(data);
+      }
+    } catch(e) { console.warn('[300x250] fetch failed', e); }
+    renderStack(cards && cards.length ? cards : FALLBACK);
+  }
+
+  fetchAndRender();
+  setInterval(fetchAndRender, REFRESH_MS);
+</script>
+</body>
+</html>

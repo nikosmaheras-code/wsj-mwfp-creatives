@@ -2,12 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="ad.size" content="width=728,height=90" />
-  <title>Polymarket 728x90</title>
-  <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
+<title>Polymarket 728x90</title>
+<style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -17,7 +13,7 @@
       background: #fff;
     }
 
-    .ad-root {
+    .pmt-root {
       position: relative;
       width: 728px;
       height: 90px;
@@ -27,7 +23,7 @@
     }
 
     /* Grid background */
-    .ad-grid {
+    .pmt-grid {
       position: absolute;
       inset: 0 0 21px 0;
       background-image: url('../assets/grid-728.png');
@@ -38,7 +34,7 @@
     }
 
     /* Upper section: top 69px */
-    .ad-upper {
+    .pmt-upper {
       position: absolute;
       top: 0;
       left: 0;
@@ -51,25 +47,25 @@
       padding: 12px;
     }
 
-    .ad-upper .logo-left {
+    .pmt-upper .logo-left {
       flex-shrink: 0;
       display: flex;
       align-items: center;
     }
 
-    .ad-upper .logo-left img {
+    .pmt-upper .logo-left img {
       height: 28px;
       width: 78px;
       object-fit: contain;
     }
 
-    .ad-upper .headline {
+    .pmt-upper .headline {
       flex: 1;
       text-align: center;
       line-height: 1.2;
     }
 
-    .ad-upper .headline .line1 {
+    .pmt-upper .headline .line1 {
       font-family: 'Inter', sans-serif;
       font-weight: 600;
       font-size: 24px;
@@ -79,7 +75,7 @@
       white-space: nowrap;
     }
 
-    .ad-upper .headline .line2 {
+    .pmt-upper .headline .line2 {
       font-family: 'Inter', sans-serif;
       font-weight: 600;
       font-size: 24px;
@@ -88,28 +84,28 @@
       white-space: nowrap;
     }
 
-    .ad-upper .headline .line2 .muted {
+    .pmt-upper .headline .line2 .muted {
       color: rgba(0,0,0,0.6);
     }
 
-    .ad-upper .headline .line2 .blue {
+    .pmt-upper .headline .line2 .blue {
       color: #2e5cff;
     }
 
-    .ad-upper .logo-right {
+    .pmt-upper .logo-right {
       flex-shrink: 0;
       display: flex;
       align-items: center;
     }
 
-    .ad-upper .logo-right img {
+    .pmt-upper .logo-right img {
       height: 20px;
       width: 111px;
       object-fit: contain;
     }
 
     /* Lower black ticker strip: bottom 21px */
-    .ad-ticker {
+    .pmt-ticker {
       position: absolute;
       bottom: 0;
       left: 0;
@@ -228,11 +224,11 @@
 </head>
 <body>
 
-<div class="ad-root" onclick="handleClick(event)">
-  <div class="ad-grid"></div>
+<div class="pmt-root" onclick="handleClick(event)">
+  <div class="pmt-grid"></div>
 
   <!-- Upper section -->
-  <div class="ad-upper">
+  <div class="pmt-upper">
     <div class="logo-left">
       <img src="../assets/nasdaq-pm-728.svg" alt="Nasdaq × Polymarket" />
     </div>
@@ -248,7 +244,7 @@
   </div>
 
   <!-- Lower ticker strip -->
-  <div class="ad-ticker">
+  <div class="pmt-ticker">
     <div class="ticker-candy">
       <img src="../assets/ticker-candy-728.svg" alt="" />
     </div>
@@ -274,36 +270,83 @@
   // ── Ticker config ──────────────────────────────────────────────
   var SCROLL_PX_PER_SEC = 45;
   var REFRESH_MS = 60 * 60 * 1000;
-  var API_URL = 'https://polymarket-ticker.vercel.app/api/markets';
+  var API_URL = 'https://gamma-api.polymarket.com/events?active=true&limit=30&tag_slug=privates&order=volume&ascending=false';
   var cachedItemsHTML = '';
   var resizeTimer = null;
+
+  var VALUATION_RE = /will (.+?)['']s?\s+valuation hit/i;
+
+  function extractDollarAmount(label) {
+    if (!label) return 0;
+    var m = label.match(/\$([\d.]+)\s*([BT])?/i);
+    if (!m) return 0;
+    var n = parseFloat(m[1]);
+    var unit = (m[2] || '').toUpperCase();
+    return unit === 'T' ? n * 1000 : n;
+  }
+
+  function parseGammaEvents(events) {
+    var byCompany = {};
+    for (var i = 0; i < events.length; i++) {
+      var evt = events[i];
+      var match = VALUATION_RE.exec(evt.title || '');
+      if (!match) continue;
+      var company = match[1].trim();
+      var vol = parseFloat(evt.volume || 0);
+      if (!byCompany[company] || vol > parseFloat(byCompany[company].volume || 0)) {
+        byCompany[company] = evt;
+      }
+    }
+    var cards = [];
+    for (var company in byCompany) {
+      var evt = byCompany[company];
+      var markets = (evt.markets || []).filter(function(m) {
+        var outcomes = [];
+        try { outcomes = JSON.parse(m.outcomes || '[]'); } catch(_) {}
+        return outcomes.length === 2 && outcomes[0].toLowerCase() === 'yes' && outcomes[1].toLowerCase() === 'no';
+      });
+      if (!markets.length) continue;
+      markets.sort(function(a, b) { return parseFloat(b.volume || 0) - parseFloat(a.volume || 0); });
+      var top2 = markets.slice(0, 2);
+      top2.sort(function(a, b) { return extractDollarAmount(b.groupItemTitle) - extractDollarAmount(a.groupItemTitle); });
+      var outcomes = top2.map(function(m) {
+        var yesPct = 50;
+        try {
+          var prices = JSON.parse(m.outcomePrices || '[]');
+          if (prices.length >= 1) yesPct = Math.round(parseFloat(prices[0]) * 100);
+        } catch(_) {}
+        return { valuation: (m.groupItemTitle || '').trim(), yesPct: yesPct, slug: m.slug || '' };
+      });
+      cards.push({ company: company, question: evt.title || '', slug: evt.slug || '', volume: parseFloat(evt.volume || 0), outcomes: outcomes });
+    }
+    cards.sort(function(a, b) { return b.volume - a.volume; });
+    return cards.slice(0, 8);
+  }
 
   function esc(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // Flatten company cards → individual ticker items (one per outcome row).
-  // Format: "ANTHROPIC ↑$1.75T  YES 40%"
-  function cardsToTickerItems(cards) {
-    var items = [];
-    for (var c = 0; c < cards.length; c++) {
-      var card = cards[c];
-      var company = (card.company || '').toUpperCase();
-      var outcomes = card.outcomes || [];
-      for (var o = 0; o < outcomes.length; o++) {
-        var out = outcomes[o];
-        var yesPct = out.yesPct != null ? out.yesPct : 50;
-        var isYes = yesPct >= 50;
-        items.push({
-          question: company + ' ' + (out.valuation || ''),
-          label: isYes ? 'YES' : 'NO',
-          pct: yesPct,
-          colorClass: isYes ? 'yes' : 'no',
-          slug: out.slug || card.slug || ''
-        });
-      }
-    }
-    return items;
+  // One ticker item per company card, using the top (highest-volume) outcome's specific valuation.
+  function parseItem(card) {
+    var top = (card.outcomes || [])[0] || {};
+    var yesPct = top.yesPct != null ? top.yesPct : 50;
+    var isYes = yesPct >= 50;
+    // Build specific question: "ANTHROPIC ↑$1.75T VALUATION BY DEC 31?"
+    var company = (card.company || '').toUpperCase();
+    var valuation = (top.valuation || '').toUpperCase();
+    // Extract deadline from generic question e.g. "by December 31" or "by Jun 30"
+    var q = card.question || '';
+    var byMatch = q.match(/by\s+(\w+)\s+(\d+)/i);
+    var deadline = byMatch ? 'BY ' + byMatch[1].toUpperCase().slice(0, 3) + ' ' + byMatch[2] : 'BY DEC 31';
+    var question = company + ' ' + valuation + ' VALUATION ' + deadline + '?';
+    return {
+      question: question,
+      label: isYes ? 'YES' : 'NO',
+      pct: yesPct,
+      colorClass: isYes ? 'yes' : 'no',
+      slug: top.slug || card.slug || ''
+    };
   }
 
   function renderItems(items) {
@@ -356,7 +399,7 @@
       var res = await fetch(API_URL);
       if (res.ok) {
         var data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
+        if (Array.isArray(data) && data.length > 0) return parseGammaEvents(data);
       }
     } catch(e) {
       console.warn('[ticker] fetch failed', e);
@@ -365,19 +408,17 @@
   }
 
   var FALLBACK_ITEMS = [
-    { question: 'ANTHROPIC ↑$1.75T', label: 'YES', pct: 40, colorClass: 'yes', slug: '' },
-    { question: 'ANTHROPIC ↑$3.0T',  label: 'NO',  pct: 14, colorClass: 'no',  slug: '' },
-    { question: 'OPENAI ↓$800B',     label: 'YES', pct: 72, colorClass: 'yes', slug: '' },
-    { question: 'OPENAI ↓$750B',     label: 'YES', pct: 50, colorClass: 'yes', slug: '' },
-    { question: 'SPACEX ↑$2.5T',     label: 'YES', pct: 46, colorClass: 'yes', slug: '' },
-    { question: 'STRIPE ↑$190B',     label: 'NO',  pct: 21, colorClass: 'no',  slug: '' }
+    { question: 'ANTHROPIC ↑$1.75T VALUATION BY DEC 31?', label: 'YES', pct: 40, colorClass: 'yes', slug: '' },
+    { question: 'OPENAI ↑$3.0T VALUATION BY DEC 31?',     label: 'NO',  pct: 14, colorClass: 'no',  slug: '' },
+    { question: 'SPACEX ↑$2.5T VALUATION BY JUN 30?',     label: 'YES', pct: 46, colorClass: 'yes', slug: '' },
+    { question: 'STRIPE ↑$190B VALUATION BY JUN 30?',     label: 'NO',  pct: 21, colorClass: 'no',  slug: '' }
   ];
 
   async function updateTicker() {
     var cards = await fetchPrivatesMarkets();
     var items;
     if (cards && cards.length > 0) {
-      items = cardsToTickerItems(cards);
+      items = cards.map(parseItem).filter(function(i) { return i.question; });
     } else {
       items = FALLBACK_ITEMS;
     }
